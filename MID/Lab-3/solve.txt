@@ -1,0 +1,569 @@
+SLIDE_4
+
+
+###1
+
+.model small
+.stack 100h
+.data
+msg db 0ah,0dh, "Hello, World $"
+.code
+main proc
+start: 
+ mov ah,9   ; print function is 9.  
+ lea dx,msg ; load offset of msg into dx.
+ int 21h        ; do it!
+ jmp start
+
+###2
+.model small
+.stack 100h
+.data
+msgHello db 0ah,0dh, "Hello, World$"
+counter  db 0          ; counter to track number of prints
+
+.code
+main proc
+    mov ax, @data
+    mov ds, ax           ; initialize data segment
+
+start:
+    ; print "Hello, World"
+    mov ah, 09h
+    lea dx, msgHello
+    int 21h
+
+    ; increment counter
+    mov al, counter
+    inc al
+    mov counter, al
+
+    ; compare counter with 5
+    cmp counter, 5
+    je done              ; if counter == 5, exit loop
+    jmp start            ; else, repeat
+
+done:
+    mov ah, 4Ch          ; exit program
+    int 21h
+main endp
+end main
+
+
+
+###3
+
+.model small
+.stack 100h
+.data  
+e db 'Enter a number: $'
+p db 10,13,'Positive$'  
+q db 10,13,'Negative$' 
+i db 10,13,'Invalid number$'
+.code
+main proc
+    mov ax,@data
+    mov ds,ax   
+    
+    ;print the string e
+    mov ah,9
+    lea dx,e
+    int 21h
+    ;read the char and place it in BL 
+    mov ah,1
+    int 21h
+    mov bl,al   ;input a and place it in BL
+    ;check BL and 30h
+    cmp bl,30h  ;
+    jg pos ;if BL>30 
+    jl nega;if BL<30
+    
+    pos:
+    cmp bl,39h
+    jg inv              
+    ;print the message p 
+    mov ah,9
+    lea dx,p
+    int 21h
+    jmp exit;go to exit 
+    
+    nega: 
+    ;load data in bh
+    mov ah,1
+    int 21h
+    mov bh,al
+    
+    cmp bh,30h 
+    jl inv
+    cmp bh,39h
+    jg inv 
+    ;print q
+    mov ah,9
+    lea dx,q
+    int 21h 
+    jmp exit
+    
+    inv:
+    mov ah,9
+    lea dx,i
+    int 21h
+    
+    exit: 
+    mov ah,4ch
+    int 21h
+    main endp
+end main
+
+
+###4
+.model small
+.stack 100h
+.data
+prompt db 'Enter a number (0-9): $'
+lessMsg db 10,13,'Less than 5$'
+equalMsg db 10,13,'Equal to 5$'
+greaterMsg db 10,13,'Greater than 5$'
+invalidMsg db 10,13,'Invalid input$'
+
+.code
+main proc
+    mov ax, @data
+    mov ds, ax
+
+    mov cl, 5           ; CL contains 5
+
+    ; print prompt
+    mov ah, 9
+    lea dx, prompt
+    int 21h
+
+    ; read character from user
+    mov ah, 1
+    int 21h
+    sub al, '0'          ; convert ASCII to number
+    mov bl, al           ; store input in BL
+
+    ; check if input is valid (0-9)
+    cmp bl, 0
+    jl invalid
+    cmp bl, 9
+    jg invalid
+
+    ; compare input with CL
+    cmp bl, cl
+    je equal
+    jl less
+    jg greater
+
+less:
+    mov ah, 9
+    lea dx, lessMsg
+    int 21h
+    jmp exit
+
+equal:
+    mov ah, 9
+    lea dx, equalMsg
+    int 21h
+    jmp exit
+
+greater:
+    mov ah, 9
+    lea dx, greaterMsg
+    int 21h
+    jmp exit
+
+invalid:
+    mov ah, 9
+    lea dx, invalidMsg
+    int 21h
+
+exit:
+    mov ah, 4Ch
+    int 21h
+
+main endp
+end main
+
+
+
+###5
+.model small
+.stack 100h
+
+.data
+prompt      db 'Enter password: $'
+correctPass db 'mypassword', 0
+successMsg  db 10,13,'Correct Password$'
+failMsg     db 10,13,'Wrong Password$'
+inputBuff   db 20 dup(?)
+
+.code
+main proc
+    mov ax, @data
+    mov ds, ax
+
+    mov ah, 9
+    lea dx, prompt
+    int 21h
+
+    mov si, offset inputBuff
+
+read_loop:
+    mov ah, 1
+    int 21h
+    cmp al, 13
+    je compare_password
+    mov [si], al
+    inc si
+    jmp read_loop
+
+compare_password:
+    mov byte ptr [si], 0
+
+    mov si, offset inputBuff
+    mov di, offset correctPass
+
+compare_loop:
+    mov al, [si]
+    mov bl, [di]
+    cmp al, bl
+    jne wrong
+    cmp al, 0
+    je correct
+    inc si
+    inc di
+    jmp compare_loop
+
+correct:
+    mov ah, 9
+    lea dx, successMsg
+    int 21h
+    jmp exit
+
+wrong:
+    mov ah, 9
+    lea dx, failMsg
+    int 21h
+
+exit:
+    mov ah, 4Ch
+    int 21h
+
+main endp
+end main
+
+
+
+###6
+.model small
+.stack 100h
+
+.data
+prompt db 'Enter a character: $'
+newline db 0ah,0dh,'$'
+
+.code
+main proc
+    mov ax,@data
+    mov ds,ax
+
+    mov ah,9
+    lea dx,prompt
+    int 21h
+
+    mov ah,1
+    int 21h
+    mov bl,al
+
+    mov cx,50
+
+    mov ah,2
+    lea dx,newline
+    int 21h
+
+print_loop:
+    mov dl,bl
+    int 21h
+    dec cx
+    jnz print_loop
+
+    mov ah,4Ch
+    int 21h
+main endp
+end main
+
+
+###7
+.model small
+.stack 100h
+
+.data
+prompt db 'Enter two characters: $'
+newline db 0ah,0dh,'$'
+
+.code
+main proc
+    mov ax, @data
+    mov ds, ax
+
+    mov ah, 9
+    lea dx, prompt
+    int 21h
+
+    mov ah, 1
+    int 21h
+    mov bl, al
+
+    mov ah, 1
+    int 21h
+    mov bh, al
+
+    mov ah, 9
+    lea dx, newline
+    int 21h
+
+    mov dl, bl
+    mov ah, 2
+    int 21h
+
+    mov dl, bh
+    mov ah, 2
+    int 21h
+
+    mov ah, 4Ch
+    int 21h
+main endp
+end main
+
+
+
+SLIDE_5
+###1
+
+.model small
+.stack 100h
+
+.data
+
+.code
+main proc
+    mov ax, -5         
+
+    cmp ax, 0
+    jl NEGATIVE
+    je ZERO
+    jg POSITIVE
+
+NEGATIVE:
+    mov bx, -1
+    jmp END_CASE
+
+ZERO:
+    mov bx, 0
+    jmp END_CASE
+
+POSITIVE:
+    mov bx, 1
+
+END_CASE:
+    mov ah, 4Ch
+    int 21h
+main endp
+end main
+
+
+###2
+.model small
+.stack 100h
+
+.data
+
+.code
+main proc
+    mov al, -5         
+
+    cmp al, 0
+    jl NEGATIVE
+    jge NONNEGATIVE
+
+NEGATIVE:
+    mov ah, 0FFh
+    jmp END_IF
+
+NONNEGATIVE:
+    mov ah, 0
+
+END_IF:
+    mov ah, 4Ch
+    int 21h
+main endp
+end main
+
+###3
+.MODEL SMALL
+.STACK 100H
+
+.CODE
+MAIN PROC
+    MOV DL,'K'
+
+    CMP DL,'A'
+    JB  SKIP
+
+    CMP DL,'Z'
+    JA  SKIP
+
+    MOV AH,02H
+    INT 21H
+
+SKIP:
+    MOV AH,4CH
+    INT 21H
+
+MAIN ENDP
+END MAIN
+
+
+###4
+.MODEL SMALL
+.STACK 100H
+
+.CODE
+MAIN PROC
+    MOV AX,10
+    MOV BX,20
+    MOV CX,30
+
+    CMP AX,BX
+    JGE NEXT1
+
+    CMP BX,CX
+    JGE PUT_BX
+
+    MOV AX,0
+    JMP EXIT
+
+PUT_BX:
+    MOV AX,BX
+    JMP EXIT
+
+NEXT1:
+    CMP BX,CX
+    JGE PUT_BX
+
+    MOV AX,0
+
+EXIT:
+    MOV AH,4CH
+    INT 21H
+
+MAIN ENDP
+END MAIN
+
+###5
+.MODEL SMALL
+.STACK 100H
+
+.CODE
+MAIN PROC
+    MOV AX,10
+    MOV BX,20
+    MOV CX,30
+
+    CMP AX,BX
+    JGE NEXT1
+
+    CMP BX,CX
+    JGE PUT_BX
+
+    MOV AX,0
+    JMP EXIT
+
+PUT_BX:
+    MOV AX,BX
+    JMP EXIT
+
+NEXT1:
+    CMP BX,CX
+    JGE PUT_BX
+
+    MOV AX,0
+
+EXIT:
+    MOV AH,4CH
+    INT 21H
+
+MAIN ENDP
+END MAIN
+
+###6
+.MODEL SMALL
+.STACK 100H
+
+.CODE
+MAIN PROC
+    MOV AX,15
+    MOV BX,20
+    MOV CX,25
+
+    CMP AX,BX
+    JGE ELSE1
+
+    MOV AX,0
+    JMP END1
+
+ELSE1:
+    CMP BX,CX
+    JGE ELSE2
+
+    MOV BX,0
+    JMP END2
+
+ELSE2:
+    MOV CX,0
+
+END2:
+END1:
+    MOV AH,4CH
+    INT 21H
+
+MAIN ENDP
+END MAIN
+
+
+###7
+.MODEL SMALL
+.STACK 100H
+
+.CODE
+MAIN PROC
+    MOV AL,3          
+
+    CMP AL,1
+    JE  DISP_O
+    CMP AL,3
+    JE  DISP_O
+    CMP AL,2
+    JE  DISP_E
+    CMP AL,4
+    JE  DISP_E
+    JMP EXIT
+
+DISP_O:
+    MOV DL,'o'
+    JMP PRINT
+
+DISP_E:
+    MOV DL,'e'
+
+PRINT:
+    MOV AH,02H
+    INT 21H
+
+EXIT:
+    MOV AH,4CH
+    INT 21H
+
+MAIN ENDP
+END MAIN

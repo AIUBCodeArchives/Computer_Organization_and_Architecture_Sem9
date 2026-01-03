@@ -1,0 +1,217 @@
+.MODEL SMALL
+.STACK 100h
+.DATA
+   
+.CODE
+MAIN PROC
+    MOV AX, @DATA
+    MOV DS, AX          ; Initialize Data Seg
+    
+    ; Print ASCII 0 to 255
+    MOV CX, 256         ; Loop counter (0 to 255 = 256 characters)
+    MOV DL, 0           ; Start from ASCII 0
+    
+    FOR_LOOP:
+    MOV AH, 02h         ; Display character function
+    INT 21h             ; Print character in DL
+    
+    INC DL              ; Move to next ASCII code
+    
+    DEC CX              ; Decrement counter manually
+    JNZ FOR_LOOP      ; Jump if Not Zero
+    
+    MOV AH, 4Ch
+    INT 21h
+MAIN ENDP
+END MAIN
+
+###2
+.MODEL SMALL
+.STACK 100h
+.DATA
+   
+.CODE
+MAIN PROC
+    MOV AX, @DATA
+    MOV DS, AX          ; Initialize Data Seg
+    
+    ; Sum
+    MOV CX, 50          ; Counter 
+    MOV AX, 1           ; First number
+    MOV DX, 0           ; Sum 
+    
+    SUM_LOOP:
+    ADD DX, AX          ; Add current term to sum
+    ADD AX, 4           ; Move to next term (common difference d = 4)
+    
+    DEC CX              ; Decrement counter
+    JNZ SUM_LOOP        ; Jump if Not Zero (CX != 0)
+    
+    
+    MOV BX, 10          ; Divisor
+    MOV CX, 0           ; Digit counter
+    
+    PUSH_DIGITS:
+    MOV AX, DX          ; Copy sum to AX
+    MOV DX, 0           ; Clear DX
+    DIV BX              ; Divide by 10
+    PUSH DX             ; Push remainder
+    INC CX              ; Count digits
+    MOV DX, AX          ; Move quotient to DX
+    CMP DX, 0           
+    JNE PUSH_DIGITS     ; Continue if not zero
+    
+    PRINT_DIGITS:
+    POP DX              ; Get digit from stack
+    ADD DL, '0'         ; Convert to ASCII
+    MOV AH, 02h         
+    INT 21h             ; Display digit
+    
+    DEC CX              ; Decrement digit counter
+    JNZ PRINT_DIGITS    ; Jump if Not Zero
+    
+    MOV AH, 4Ch
+    INT 21h
+MAIN ENDP
+END MAIN
+
+
+###3
+
+.MODEL SMALL
+.STACK 100h
+.DATA
+   
+.CODE
+MAIN PROC
+    MOV AX, @DATA
+    MOV DS, AX          ; Initialize Data Seg
+    
+    ; Sum of 100 + 95 + 90 + ... + 5
+    MOV CX, 20          ; Counter
+    MOV BX, 100         ; First term (starts at 100)
+    MOV AX, 0           ; Sum
+    
+    SUM_LOOP:
+    ADD AX, BX          ; Add current term to sum
+    SUB BX, 5           ; subtract 5
+    
+    DEC CX              ; Decrement 
+    JNZ SUM_LOOP        ; Jump if Not Zero
+    
+    
+    MOV BX, 10          ; Divisor
+    MOV CX, 0           ; Digit counter
+    MOV DX, AX          ; DX for division
+    
+    PUSH_DIGITS:
+    MOV AX, DX          
+    MOV DX, 0           ; Clear DX
+    DIV BX              ; Divide by 10
+    PUSH DX             ; remainder
+    INC CX              
+    MOV DX, AX          ; Move quotient to DX
+    CMP DX, 0           
+    JNE PUSH_DIGITS     ; Continue if not zero
+    
+    PRINT_DIGITS:
+    POP DX              ; Get digit from stack
+    ADD DL, '0'         ; Convert to ASCII
+    MOV AH, 02h         
+    INT 21h             ; Display digit
+    
+    DEC CX              ; Decrement counter
+    JNZ PRINT_DIGITS    ; Jump if Not Zero
+    
+    MOV AH, 4Ch
+    INT 21h
+MAIN ENDP
+END MAIN
+
+
+###4
+
+                     .MODEL SMALL
+.STACK 100h
+.DATA                     
+
+.CODE
+MAIN PROC
+    MOV AX, @DATA
+    MOV DS, AX          ; Initialize Data Seg
+    
+    ; Print d
+    MOV CX, 50          ; counter
+    
+    FOR_LOOP:
+    MOV DL, 'd'         ; Character to print
+    MOV AH, 02h         ; Display character function
+    INT 21h             ; Print character
+    
+    DEC CX              ; Decrement counter 
+    JNZ FOR_LOOP        ; Jump if Not Zero
+    
+    MOV AH, 4Ch
+    INT 21h
+MAIN ENDP
+END MAIN
+
+###5
+
+.MODEL SMALL
+.STACK 100h
+.DATA
+    
+.CODE
+MAIN PROC
+    MOV AX, @DATA
+    MOV DS, AX          ; Initialize Data Seg
+    
+    ; Display '?'
+    MOV DL, '?'
+    MOV AH, 02h
+    INT 21h
+    
+    ; Read first character
+    MOV AH, 01h         
+    INT 21h
+    MOV BL, AL          ; Store in BL
+    
+    ; Read second character
+    MOV AH, 01h         
+    INT 21h
+    MOV BH, AL          ; Store in BH
+    
+    ; Newline
+    MOV DL, 0Dh         ; Carriage Return
+    MOV AH, 02h
+    INT 21h
+    MOV DL, 0Ah         ; Line Feed
+    MOV AH, 02h
+    INT 21h
+    
+    ; Compare and sort
+    CMP BL, BH          ; Compare BL with BH
+    JG SWAP             ; Jump if Greater (BL > BH)
+    JMP DISPLAY         
+    
+    SWAP:
+    XCHG BL, BH         ; Exchange BL and BH
+    
+    DISPLAY:
+    ; Display first character
+    MOV DL, BL
+    MOV AH, 02h
+    INT 21h
+    
+    ; Display second character
+    MOV DL, BH
+    MOV AH, 02h
+    INT 21h
+    
+    MOV AH, 4Ch
+    INT 21h
+MAIN ENDP
+END MAIN
+
+

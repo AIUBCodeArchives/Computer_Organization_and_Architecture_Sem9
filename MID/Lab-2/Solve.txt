@@ -1,0 +1,63 @@
+###1
+
+.MODEL SMALL
+.STACK 100H
+.DATA
+    A DB "HELLO!$"
+
+.CODE
+MAIN PROC
+    MOV AX,@DATA
+    MOV DS,AX
+    
+    MOV AH,9
+    LEA DX,MSG
+    INT 21H
+    
+    MOV AH,4CH
+    INT 21H
+MAIN ENDP  
+
+END
+
+
+
+###2
+.MODEL SMALL
+.STACK 100H
+.DATA
+    input DB "ENTER A LOWER-CASE LETTER: $"
+    output DB 0AH,0DH,"IN UPPERCASE IT IS: $"
+    NEWLINE DB 0AH,0DH,"$"
+
+.CODE
+MAIN PROC
+    MOV AX,@DATA
+    MOV DS,AX
+    
+    MOV AH,9
+    LEA DX,input
+    INT 21H
+    
+    MOV AH,1
+    INT 21H
+    MOV BL,AL
+    
+    SUB BL,20H
+    
+    MOV AH,9
+    LEA DX,output
+    INT 21H
+    
+    MOV AH,2
+    MOV DL,BL
+    INT 21H
+    
+    MOV AH,9
+    LEA DX,NEWLINE
+    INT 21H
+    
+    MOV AH,4CH
+    INT 21H
+MAIN ENDP
+END MAIN

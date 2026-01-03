@@ -1,0 +1,421 @@
+###1
+
+.model small
+.stack 100h
+.data
+    prompt db 'Input (2 numbers together for adding and comparing) : $'
+    result_msg db 'Resulted Sum : $'
+    msg_greater db 0dh, 0ah, 'Greater than 12$'
+    msg_not_greater db 0dh, 0ah, 'Not greater than 12$'
+    num1 db ?
+    num2 db ?
+    sum db ?
+
+.code
+main proc
+    mov ax, @data
+    mov ds, ax
+    
+    mov ah, 9
+    lea dx, prompt
+    int 21h
+    ;num1
+    mov ah, 01h
+    int 21h
+    sub al, 30h
+    mov num1, al
+    ;num2
+    mov ah, 01h
+    int 21h
+    sub al, 30h
+    mov num2, al
+    ;adding
+    mov al, num1
+    add al, num2
+    mov sum, al
+    
+    ;result show
+    mov dl, 0dh
+    mov ah, 02h
+    int 21h
+    mov dl, 0ah
+    int 21h
+             
+    mov ah, 9
+    lea dx, result_msg
+    int 21h 
+    
+    mov al, sum
+    cmp al, 10
+    jl single_digit
+    
+    mov ah, 0
+    mov bl, 10
+    div bl
+    mov bh, ah
+    add al, 30h
+    mov dl, al
+    mov ah, 02h
+    int 21h
+    mov dl, bh
+    add dl, 30h
+    mov ah, 02h
+    int 21h
+    jmp check_sum
+    
+single_digit:
+    add al, 30h
+    mov dl, al
+    mov ah, 02h
+    int 21h
+;if-else   
+check_sum:
+    mov al, sum
+    cmp al, 12
+    jle ELSE_
+    mov ah, 9
+    lea dx, msg_greater
+    int 21h
+    jmp END_IF
+    
+ELSE_:
+    mov ah, 9
+    lea dx, msg_not_greater
+    int 21h
+    
+END_IF:
+    mov ah, 4ch
+    int 21h
+    
+main endp
+end main
+
+###2
+.model small
+.stack 100h
+.data
+    prompt db 'ENTER THREE INITIALS:$'
+    error_msg db 0dh, 0ah, 'Invalid input. (Only uppercase letters)'
+    newline db 0dh, 0ah, '$'
+    char1 db ?
+    char2 db ?
+    char3 db ?
+
+.code
+main proc
+    mov ax, @data
+    mov ds, ax
+    
+    mov ah, 9
+    lea dx, prompt
+    int 21h
+    
+    ;1st Letter
+    mov ah, 01h
+    int 21h
+    mov bl, al
+    cmp bl, 'A'
+    jl invalid
+    cmp bl, 'Z'
+    jg invalid
+    mov char1, bl
+               
+    ;2nd
+    mov ah, 01h
+    int 21h
+    mov bl, al
+    cmp bl, 'A'
+    jl invalid
+    cmp bl, 'Z'
+    jg invalid
+    mov char2, bl
+        
+    ;3rd
+    mov ah, 01h
+    int 21h
+    mov bl, al
+    cmp bl, 'A'
+    jl invalid
+    cmp bl, 'Z'
+    jg invalid
+    mov char3, bl
+    jmp sort_chars
+    
+invalid:
+    mov ah, 9
+    lea dx, error_msg
+    int 21h
+    jmp exit_prog
+    
+sort_chars:
+    mov al, char1
+    mov bl, char2
+    mov cl, char3
+    
+    cmp al, bl
+    jle check_second
+    xchg al, bl
+    
+check_second:
+    cmp bl, cl
+    jle check_first
+    xchg bl, cl
+    cmp al, bl
+    jle check_first
+    xchg al, bl
+    
+check_first:
+    mov char1, al
+    mov char2, bl
+    mov char3, cl
+    
+    mov ah, 9
+    lea dx, newline
+    int 21h
+    
+    mov dl, '3'
+    mov ah, 02h
+    int 21h
+    
+    mov dl, ' '
+    int 21h
+    mov dl, char3
+    int 21h
+    
+    mov ah, 9
+    lea dx, newline
+    int 21h
+    
+    mov dl, '2'
+    mov ah, 02h
+    int 21h
+    mov dl, ' '
+    int 21h
+    mov dl, char2
+    int 21h
+    
+    mov ah, 9
+    lea dx, newline
+    int 21h
+    
+    mov dl, '1'
+    mov ah, 02h
+    int 21h
+    mov dl, ' '
+    int 21h
+    mov dl, char1
+    int 21h
+    
+exit_prog:
+    mov ah, 4ch
+    int 21h
+    
+main endp
+end main
+
+###3
+.model small
+.stack 100h
+.data
+    initial_text db 0dh, 0ah, 'Enter 3 number together: $'
+    newline db 0dh, 0ah, '$'
+    msg_smallest db ' is smallest$'
+    msg_largest db ' is largest$'
+    num1 db ?
+    num2 db ?
+    num3 db ?
+    smallest db ?
+    largest db ?
+
+.code
+main proc
+    mov ax, @data
+    mov ds, ax
+    
+    mov ah, 9
+    lea dx, initial_text
+    int 21h
+                                         
+    mov ah, 01h
+    int 21h
+    sub al, 30h
+    mov num1, al
+    
+    mov ah, 9
+    lea dx, newline
+    int 21h
+    
+    mov ah, 01h
+    int 21h
+    sub al, 30h
+    mov num2, al
+    
+    mov ah, 9
+    lea dx, newline
+    int 21h
+    
+    mov ah, 01h
+    int 21h
+    sub al, 30h
+    mov num3, al
+    
+    mov al, num1
+    mov bl, num2
+    mov cl, num3
+    
+    cmp al, bl
+    jle check_al_cl
+    mov smallest, bl
+    mov largest, al
+    jmp check_with_third
+    
+check_al_cl:
+    mov smallest, al
+    mov largest, bl
+    
+check_with_third:
+    mov al, smallest
+    cmp al, cl
+    jle check_largest
+    mov smallest, cl
+    
+check_largest:
+    mov al, largest
+    cmp al, cl
+    jge display_result
+    mov largest, cl
+    
+display_result:
+    mov ah, 9
+    lea dx, newline
+    int 21h
+    
+    mov dl, smallest
+    add dl, 30h
+    mov ah, 02h
+    int 21h
+    
+    mov ah, 9
+    lea dx, msg_smallest
+    int 21h
+    
+    mov ah, 9
+    lea dx, newline
+    int 21h
+    
+    mov dl, largest
+    add dl, 30h
+    mov ah, 02h
+    int 21h
+    
+    mov ah, 9
+    lea dx, msg_largest
+    int 21h
+    
+    mov ah, 4ch
+    int 21h
+    
+main endp
+end main
+
+
+
+
+
+###4
+.model small
+.stack 100h
+.data
+    prompt db 'ENTER THREE INITIALS:$'
+    newline db 0dh, 0ah, '$'
+    char1 db ?
+    char2 db ?
+    char3 db ?
+
+.code
+main proc
+    mov ax, @data
+    mov ds, ax
+    
+    mov ah, 9
+    lea dx, prompt
+    int 21h
+    
+    mov ah, 01h
+    int 21h
+    mov char1, al
+    
+    mov ah, 01h
+    int 21h
+    mov char2, al
+    
+    mov ah, 01h
+    int 21h
+    mov char3, al
+    
+    mov al, char1
+    mov bl, char2
+    mov cl, char3
+    
+    cmp al, bl
+    jle check_second
+    xchg al, bl
+    
+check_second:
+    cmp bl, cl
+    jle check_first
+    xchg bl, cl
+    cmp al, bl
+    jle check_first
+    xchg al, bl
+    
+check_first:
+    mov char1, al
+    mov char2, bl
+    mov char3, cl
+    
+    mov ah, 9
+    lea dx, newline
+    int 21h
+    
+    mov dl, char3
+    mov ah, 02h
+    int 21h
+    
+    mov ah, 9
+    lea dx, newline
+    int 21h
+    
+    mov dl, char2
+    mov ah, 02h
+    int 21h
+    
+    mov ah, 9
+    lea dx, newline
+    int 21h
+    
+    mov dl, char1
+    mov ah, 02h
+    int 21h
+    
+    mov ah, 4ch
+    int 21h
+    
+main endp
+end main 
+
+
+###5
+1
+3Strees
+5Strees
+7
+No Strees
+
+
+###6
+YOUR NAME: MR. JOHN
+YOUR First NUMBER is: 5
+YOUR SECOND NUMBER is: 4
+SUM OF DIGITS: 9
+SUB OF DIGITS: 1

@@ -1,0 +1,268 @@
+###1
+
+.model small
+.stack 100h
+.data
+    a db 'AAA$'
+    b db 'BBB$'
+    c db 'CCC$'
+    newline db 0dh, 0ah, '$'
+    
+.code
+main proc
+    mov ax, @data
+    mov ds, ax
+    
+    ;AAA
+    mov ah, 9
+    lea dx, a
+    int 21h
+    mov ah, 9
+    lea dx, newline
+    int 21h
+           
+    mov ah, 9
+    lea dx, a
+    int 21h
+    mov ah, 9
+    lea dx, newline
+    int 21h
+    
+    mov ah, 9
+    lea dx, a
+    int 21h
+        
+    mov ah, 9
+    lea dx, newline
+    int 21h
+    
+    ;blank line
+    mov ah, 9
+    lea dx, newline
+    int 21h
+           
+           
+    ;BBB       
+    mov ah, 9
+    lea dx, b
+    int 21h
+    mov ah, 9
+    lea dx, newline
+    int 21h
+    
+    mov ah, 9
+    lea dx, b
+    int 21h
+    mov ah, 9
+    lea dx, newline
+    int 21h
+    
+    mov ah, 9
+    lea dx, b
+    int 21h
+    mov ah, 9
+    lea dx, newline
+    int 21h
+    
+    mov ah, 9
+    lea dx, b
+    int 21h
+    mov ah, 9
+    lea dx, newline
+    int 21h
+    
+    mov ah, 9
+    lea dx, b
+    int 21h
+    mov ah, 9
+    lea dx, newline
+    int 21h
+    
+    mov ah, 9
+    lea dx, b
+    int 21h
+    mov ah, 9
+    lea dx, newline
+    int 21h
+    
+    ;CCC
+    mov ah, 9
+    lea dx, c
+    int 21h
+    mov ah, 9
+    lea dx, newline
+    int 21h
+    
+    mov ah, 9
+    lea dx, c
+    int 21h
+    mov ah, 9
+    lea dx, newline
+    int 21h
+    
+    mov ah, 4ch
+    int 21h
+    
+main endp
+end main
+
+
+###2
+
+.model small
+.stack 100h
+.data
+    lucky_msg db 'LUCKY $' 
+
+.code
+main proc
+    mov ax, @data
+    mov ds, ax
+    
+    ;start counter at 1
+    mov cx, 1          
+    
+LOOP_START: 
+    ;<=30
+    mov al, cl
+    cmp al, 30
+    jg END_PROGRAM
+    
+    ; Check if divisible by 7
+    mov ah, 0
+    mov bl, 7
+    div bl
+    ;Save remainder
+    mov bh, ah          
+    
+    ;if remainder = 0 then its divisible by 7 
+    cmp bh, 0
+    je PRINT_LUCKY
+    
+    ;Print number if not
+    mov al, cl
+    cmp al, 10
+    ;single character printing
+    jl SINGLE_DIGIT
+    
+    ;double digits printing
+    mov ah, 0
+    mov bl, 10
+    div bl
+    push ax            
+    add al, 30h
+    mov dl, al
+    mov ah, 02h
+    int 21h
+    pop ax
+    mov dl, ah
+    add dl, 30h
+    mov ah, 02h
+    int 21h 
+    
+    ;space printing
+    mov dl, ' '
+    mov ah, 02h
+    int 21h
+    ;loop again
+    jmp CONTINUE_LOOP
+    
+SINGLE_DIGIT:
+    add al, 30h
+    mov dl, al
+    mov ah, 02h
+    int 21h
+    jmp PRINT_SPACE
+    
+PRINT_LUCKY:
+    mov ah, 9
+    lea dx, lucky_msg
+    int 21h
+    jmp CONTINUE_LOOP
+    
+PRINT_SPACE:
+    mov dl, ' '
+    mov ah, 02h
+    int 21h
+    
+CONTINUE_LOOP:
+    inc cx
+    jmp LOOP_START
+    
+END_PROGRAM:
+    mov dl, 0dh
+    mov ah, 02h
+    int 21h
+    mov dl, 0ah
+    mov ah, 02h
+    int 21h
+    
+    mov ah, 4ch
+    int 21h
+    
+main endp
+end main
+ 
+
+###3
+
+.model small
+.stack 100h
+.data
+    hash db '#$'
+
+.code
+main proc
+    mov ax, @data
+    mov ds, ax
+    
+    ;counter start at 1 for lines
+    mov cx, 1          
+
+;nested loop
+;parent   
+P_LOOP:
+    ;<=10, lines to print
+    cmp cx, 10          
+    jg END_PROGRAM
+     
+    ;counter start at 1 for each hash
+    mov bx, 1           
+
+;child
+C_LOOP:
+    ; Compare columns with current row
+    cmp bx, cx
+    ;if enough hash           
+    jg PRINT_NEWLINE    
+    
+    ; Print #
+    mov ah, 9
+    lea dx, hash
+    int 21h
+    
+    ;bx+1 for each hash
+    inc bx              
+    jmp C_LOOP
+    
+PRINT_NEWLINE:
+    mov dl, 0dh         
+    mov ah, 02h
+    int 21h
+    mov dl, 0ah         
+    mov ah, 02h
+    int 21h
+    
+    ;cx+1 for each line
+    inc cx             
+    jmp P_LOOP
+    
+END_PROGRAM:
+    mov ah, 4ch
+    int 21h
+    
+main endp
+end main
+
+
+

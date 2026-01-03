@@ -1,0 +1,275 @@
+###1
+.MODEL SMALL
+.STACK 100h
+.DATA
+
+.CODE
+MAIN PROC
+    MOV AX, @DATA
+    MOV DS, AX          ; Initialize Data Seg
+    
+    ;IF
+    MOV AX, -5          
+    
+    CMP AX, 0           ; Compare AX with 0
+    JGE SKIP_IF         ; Jump if Greater than or Equal to SKIP_IF (AX >= 0)
+    
+    ;IF_BLOCK
+    MOV BX, -1          ; Put -1 in BX
+    
+    ;END_IF
+    SKIP_IF:
+    
+    MOV AH, 4Ch
+    INT 21h
+MAIN ENDP
+END MAIN
+
+
+###2
+.MODEL SMALL
+.STACK 100h
+.DATA
+    
+.CODE
+MAIN PROC
+    MOV AX, @DATA
+    MOV DS, AX          ; Initialize Data Seg
+    
+    ;IF-ELSE
+    MOV AL, -10         ; Test value 
+    
+    CMP AL, 0           ; Compare AL with 0
+    JGE ELSE_BLOCK      ; Jump if G than or E to ELSE_BLOCK
+    
+    ;IF_BLOCK 
+    MOV AH, 0FFh        
+    JMP END_IF          ;jump to skip the else block
+    
+    ;ELSE_BLOCK
+    ELSE_BLOCK:
+    MOV AH, 0           
+    
+    ; END_IF_
+    END_IF:
+    MOV AH, 4Ch
+    INT 21h
+MAIN ENDP
+END MAIN
+
+
+###3
+
+.MODEL SMALL
+.STACK 100h
+.DATA
+   
+.CODE
+MAIN PROC
+    MOV AX, @DATA
+    MOV DS, AX          ; Initialize Data Seg
+    
+    ;Nested IF
+    MOV DL, 'M'         ; Test value 
+                        
+    
+    ;if DL >= 'A' 
+    CMP DL, 'A'
+    JL SKIP_IF          ; Jump if Less than 'A' to SKIP_IF
+    
+    ;if DL <= 'Z' 
+    CMP DL, 'Z'
+    JG SKIP_IF          ; Jump if Greater than 'Z' to SKIP_IF
+    
+    ; DL is an uppercase letter (A-Z), so display it
+    MOV AH, 02h         ;display a single character
+    INT 21h             
+    
+    SKIP_IF:
+    
+    MOV AH, 4Ch
+    INT 21h
+MAIN ENDP
+END MAIN
+
+
+###4
+.MODEL SMALL
+.STACK 100h
+.DATA
+   
+.CODE
+MAIN PROC
+    MOV AX, @DATA
+    MOV DS, AX          ; Initialize Data Seg
+    
+    ; Nested IF-ELSE
+    MOV AX, 5           ; Test value
+    MOV BX, 10          
+    MOV CX, 15          
+    
+    ; if AX < BX
+    CMP AX, BX
+    JGE SKIP_OUTER_IF   ; Jump if AX >= BX
+    
+    ; if BX < CX
+    CMP BX, CX
+    JGE INNER_ELSE      ; Jump if BX >= CX
+    
+    ; PUT 0 IN AX
+    MOV AX, 0           
+    JMP END_INNER_IF    
+    
+    INNER_ELSE:
+    ; PUT 0 IN BX
+    MOV BX, 0           
+    
+    END_INNER_IF:
+    
+    SKIP_OUTER_IF:
+    
+    MOV AH, 4Ch
+    INT 21h
+MAIN ENDP
+END MAIN
+
+
+###5
+
+.MODEL SMALL
+.STACK 100h
+.DATA
+   
+.CODE
+MAIN PROC
+    MOV AX, @DATA
+    MOV DS, AX          ; Initialize Data Seg
+    
+    ; IF-ELSE with OR condition
+    MOV AX, 15          ; Test value
+    MOV BX, 10          
+    MOV CX, 20          
+    
+    ; if AX < BX (First condition)
+    CMP AX, BX
+    JL IF_BLOCK         ; Jump if AX < BX (condition TRUE)
+    
+    ; if BX < CX (Second condition)
+    CMP BX, CX
+    JL IF_BLOCK         ; Jump if BX < CX (condition TRUE)
+    
+    ; ELSE: Both conditions are FALSE
+    JMP ELSE_BLOCK      
+    
+    IF_BLOCK:
+    ; PUT 0 IN DX
+    MOV DX, 0           
+    JMP END_IF          
+    
+    ELSE_BLOCK:
+    ; PUT 1 IN DX
+    MOV DX, 1           
+    
+    END_IF:
+    
+    MOV AH, 4Ch
+    INT 21h
+MAIN ENDP
+END MAIN
+
+
+###6
+
+.MODEL SMALL
+.STACK 100h
+.DATA
+   
+.CODE
+MAIN PROC
+    MOV AX, @DATA
+    MOV DS, AX          ; Initialize Data Seg
+    
+    ; Nested IF-ELSE-IF
+    MOV AX, 15          ; Test value
+    MOV BX, 10          
+    MOV CX, 20          
+    
+    ; if AX < BX
+    CMP AX, BX
+    JGE OUTER_ELSE      ; Jump if AX >= BX
+    
+    ; PUT 0 IN AX
+    MOV AX, 0           
+    JMP END_OUTER_IF    
+    
+    OUTER_ELSE:
+    ; if BX < CX
+    CMP BX, CX
+    JGE INNER_ELSE      ; Jump if BX >= CX
+    
+    ; PUT 0 IN BX
+    MOV BX, 0           
+    JMP END_OUTER_IF    
+    
+    INNER_ELSE:
+    ; PUT 0 IN CX
+    MOV CX, 0           
+    
+    END_OUTER_IF:
+    
+    MOV AH, 4Ch
+    INT 21h
+MAIN ENDP
+END MAIN
+
+
+###7
+.MODEL SMALL
+.STACK 100h
+.DATA
+    msg_odd DB 'o$'    
+    msg_even DB 'e$'   
+    
+.CODE
+MAIN PROC
+    MOV AX, @DATA
+    MOV DS, AX          ; Initialize Data Seg
+    
+    ; Multiple Condition Check
+    MOV AL, 3           ; Test value (1, 2, 3, or 4)
+    
+    ; Check if AL = 1
+    CMP AL, 1
+    JE DISPLAY_ODD      
+    
+    ; Check if AL = 3
+    CMP AL, 3
+    JE DISPLAY_ODD      
+    
+    ; Check if AL = 2
+    CMP AL, 2
+    JE DISPLAY_EVEN     
+    
+    ; Check if AL = 4
+    CMP AL, 4
+    JE DISPLAY_EVEN     
+    
+    JMP END_DISPLAY
+    
+    DISPLAY_ODD:
+    MOV DX, OFFSET msg_odd
+    MOV AH, 09h         
+    INT 21h             
+    JMP END_DISPLAY
+    
+    DISPLAY_EVEN:
+    MOV DX, OFFSET msg_even
+    MOV AH, 09h         
+    INT 21h             
+    
+    END_DISPLAY:
+    
+    MOV AH, 4Ch
+    INT 21h
+MAIN ENDP
+END MAIN

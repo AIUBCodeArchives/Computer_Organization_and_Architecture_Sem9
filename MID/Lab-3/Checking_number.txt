@@ -1,0 +1,60 @@
+.model small
+.stack 100h
+.data  
+e db 'Enter a number: $'
+p db 10,13,'Positive$'  
+q db 10,13,'Negative$' 
+i db 10,13,'Invalid number$'
+.code
+main proc
+    mov ax,@data
+    mov ds,ax   
+    
+    ;print the string e
+    mov ah,9
+    lea dx,e
+    int 21h
+    ;read the char and place it in BL 
+    mov ah,1
+    int 21h
+    mov bl,al   ;input a and place it in BL
+    ;check BL and 30h
+    cmp bl,30h  ;
+    jg pos ;if BL>30 
+    jl nega;if BL<30
+    
+    pos:
+    cmp bl,39h
+    jg inv              
+    ;print the message p 
+    mov ah,9
+    lea dx,p
+    int 21h
+    jmp exit;go to exit 
+    
+    nega: 
+    ;load data in bh
+    mov ah,1
+    int 21h
+    mov bh,al
+    
+    cmp bh,30h 
+    jl inv
+    cmp bh,39h
+    jg inv 
+    ;print q
+    mov ah,9
+    lea dx,q
+    int 21h 
+    jmp exit
+    
+    inv:
+    mov ah,9
+    lea dx,i
+    int 21h
+    
+    exit: 
+    mov ah,4ch
+    int 21h
+    main endp
+end main

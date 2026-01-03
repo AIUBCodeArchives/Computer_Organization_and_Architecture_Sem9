@@ -1,0 +1,133 @@
+###1
+
+.MODEL SMALL
+.STACK 100h
+.DATA
+    prompt DB 'Enter a character: $'
+    result_msg DB 0Dh, 0Ah, 'Converted: $'
+    not_letter DB 0Dh, 0Ah, 'Not a letter!$'
+    
+.CODE
+MAIN PROC
+    MOV AX, @DATA
+    MOV DS, AX          ; Initialize Data Seg
+    
+    ; Display prompt
+    MOV AH, 09h
+    LEA DX, prompt
+    INT 21h
+    
+    ; Read character
+    MOV AH, 01h
+    INT 21h
+    MOV BL, AL          ; Store character
+    
+    ; Check if it's a letter
+    ; Check uppercase (A-Z): 65-90
+    CMP BL, 'A'
+    JL NOT_A_LETTER     ; Less than 'A'
+    CMP BL, 'Z'
+    JLE CONVERT_TO_LOWER 
+    
+    ; Check lowercase (a-z): 97-122
+    CMP BL, 'a'
+    JL NOT_A_LETTER     ; Less than 'a'
+    CMP BL, 'z'
+    JG NOT_A_LETTER     ; Greater than 'z'
+    
+    ; Convert lowercase to uppercase
+    CONVERT_TO_UPPER:
+    AND BL, 11011111b   ; 
+    JMP DISPLAY_RESULT
+    
+    ; Convert uppercase to lowercase
+    CONVERT_TO_LOWER:
+    OR BL, 00100000b    ; Set bit 5
+    JMP DISPLAY_RESULT
+    
+    NOT_A_LETTER:
+    MOV AH, 09h
+    LEA DX, not_letter
+    INT 21h
+    JMP END_PROGRAM
+    
+    DISPLAY_RESULT:
+    ; Display result
+    MOV AH, 09h
+    LEA DX, result_msg
+    INT 21h
+    
+    ; Display converted char
+    MOV DL, BL
+    MOV AH, 02h
+    INT 21h
+    
+    END_PROGRAM:
+    MOV AH, 4Ch
+    INT 21h
+MAIN ENDP
+END MAIN
+
+
+
+###2
+.MODEL SMALL
+.STACK 100h
+.DATA
+    prompt DB 'Enter a number (0-9): $'
+    even_msg DB 0Dh, 0Ah, 'Even number$'
+    odd_msg DB 0Dh, 0Ah, 'Odd number$'
+    not_number DB 0Dh, 0Ah, 'Not a number!$'
+    
+.CODE
+MAIN PROC
+    MOV AX, @DATA
+    MOV DS, AX          ; Initialize Data Seg
+    
+    ; Display prompt
+    MOV AH, 09h
+    LEA DX, prompt
+    INT 21h
+    
+    ; Read character
+    MOV AH, 01h
+    INT 21h
+    MOV BL, AL          ; Store character in BL
+    
+    ; Check if it's a digi
+    CMP BL, '0'
+    JL NOT_A_NUMBER     ; Less than '0'
+    CMP BL, '9'
+    JG NOT_A_NUMBER     ; Greater than '9'
+    
+    ; Test if odd or even using TEST instruction
+    ; Test the least significant bit
+    ; If bit 0 = 1, number is odd
+    ; If bit 0 = 0, number is even
+    TEST BL, 00000001b  ; Mask to test bit 0
+    JNZ ODD_NUMBER      ; Jump if Not Zero
+    
+    ; Even number
+    EVEN_NUMBER:
+    MOV AH, 09h
+    LEA DX, even_msg
+    INT 21h
+    JMP END_PROGRAM
+    
+    ; Odd number
+    ODD_NUMBER:
+    MOV AH, 09h
+    LEA DX, odd_msg
+    INT 21h
+    JMP END_PROGRAM
+    
+    NOT_A_NUMBER:
+    MOV AH, 09h
+    LEA DX, not_number
+    INT 21h
+    
+    END_PROGRAM:
+    MOV AH, 4Ch
+    INT 21h
+MAIN ENDP
+END MAIN
