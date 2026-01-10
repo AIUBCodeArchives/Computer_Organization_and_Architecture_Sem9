@@ -1,0 +1,167 @@
+###1
+
+.MODEL SMALL
+.STACK 100h
+.DATA
+    msg_before DB 'Before Swap: AX = $'
+    msg_bx DB ', BX = $'
+    msg_after DB 0Dh, 0Ah, 'After Swap: AX = $'
+    
+.CODE
+MAIN PROC
+    MOV AX, @DATA
+    MOV DS, AX          ; Initialize Data Seg
+    
+    ; Initialize values
+    MOV AX, 5           ; AX = 5
+    MOV BX, 6           ; BX = 6
+    
+    ; Swap using Stack
+    PUSH AX             ; Push AX to stack
+    PUSH BX             ; Push BX to stack
+    POP AX              ; Pop to AX (gets BX value)
+    POP BX              ; Pop to BX (gets AX value)
+    
+    ; Now AX = 6, BX = 5
+    
+    MOV AH, 4Ch
+    INT 21h
+MAIN ENDP
+END MAIN
+
+
+
+###2
+
+
+.MODEL SMALL
+.STACK 100h
+.DATA
+    
+.CODE
+MAIN PROC
+    MOV AX, @DATA
+    MOV DS, AX          ; Initialize Data Seg
+    
+    ; Initialize values
+    MOV AX, 1234h       ; AX = 1234h
+    MOV BX, 5678h       ; BX = 5678h
+    MOV CX, 9ABCh       ; CX = 9ABCh
+    MOV SP, 100h        ; SP = 0100h
+    
+    PUSH AX             ; SP = 00FEh, Stack: [1234h]
+    PUSH BX             ; SP = 00FCh, Stack: [1234h, 5678h]
+    XCHG AX, CX         ; AX = 9ABCh, CX = 1234h
+    POP CX              ; CX = 5678h, SP = 00FEh
+    PUSH AX             ; SP = 00FCh, Stack: [1234h, 9ABCh]
+    POP BX              ; BX = 9ABCh, SP = 00FEh
+    
+    ; Final values:
+    ; AX = 9ABCh
+    ; BX = 9ABCh
+    ; CX = 5678h
+    ; SP = 00FEh
+    
+    MOV AH, 4Ch
+    INT 21h
+MAIN ENDP
+END MAIN
+
+###3
+
+
+.MODEL SMALL
+.STACK 100h
+.DATA
+    
+.CODE
+MAIN PROC
+    MOV AX, @DATA
+    MOV DS, AX          ; Initialize Data Seg
+    
+    ; Push three characters onto stack
+    MOV DL, '1'
+    PUSH DX             ; Push '1'
+    
+    MOV DL, '2'
+    PUSH DX             ; Push '2'
+    
+    MOV DL, '3'
+    PUSH DX             ; Push '3'
+    
+    ; Pop and display in reverse order
+    POP DX              ; Get '3'
+    MOV AH, 02h
+    INT 21h
+    
+    POP DX              ; Get '2'
+    MOV AH, 02h
+    INT 21h
+    
+    POP DX              ; Get '1'
+    MOV AH, 02h
+    INT 21h
+    
+    MOV AH, 4Ch
+    INT 21h
+MAIN ENDP
+END MAIN
+
+
+
+###4
+
+
+.MODEL SMALL
+.STACK 100h
+.DATA
+    prompt DB 'Enter a string: $'
+    result_msg DB 0Dh, 0Ah, 'Reversed: $'
+    
+.CODE
+MAIN PROC
+    MOV AX, @DATA
+    MOV DS, AX          ; Initialize Data Seg
+    
+    ; Display prompt
+    MOV AH, 09h
+    LEA DX, prompt
+    INT 21h
+    
+    MOV CX, 0           ; Character counter
+    
+    ; Read characters and push to stack
+    INPUT_LOOP:
+    MOV AH, 01h         ; Read character
+    INT 21h
+    
+    CMP AL, 0Dh         ; Check for Enter key (CR)
+    JE END_INPUT        ; If Enter, stop reading
+    
+    PUSH AX             ; Push character to stack
+    INC CX              ; Increment counter
+    JMP INPUT_LOOP
+    
+    END_INPUT:
+    ; Display result message
+    MOV AH, 09h
+    LEA DX, result_msg
+    INT 21h
+    
+    ; Pop and display characters (reversed)
+    OUTPUT_LOOP:
+    CMP CX, 0           ; Check if all characters displayed
+    JE END_OUTPUT
+    
+    POP DX              ; Pop character from stack
+    MOV AH, 02h         ; Display character
+    INT 21h
+    
+    DEC CX              ; Decrement counter
+    JMP OUTPUT_LOOP
+    
+    END_OUTPUT:
+    MOV AH, 4Ch
+    INT 21h
+MAIN ENDP
+END MAIN

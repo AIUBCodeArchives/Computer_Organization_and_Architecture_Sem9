@@ -1,0 +1,139 @@
+
+###1
+
+.MODEL SMALL
+.STACK 100h
+.DATA
+    
+.CODE
+MAIN PROC
+    MOV AX, @DATA
+    MOV DS, AX          ; Initialize Data Seg
+    
+    ; Count number of 1 bits in BX without changing BX
+    MOV BX, 1011010110101101b  ; Test value (example)
+    MOV CX, 16          ; 16 bits to check
+    MOV AX, 0           ; Counter for 1 bits
+    
+    COUNT_LOOP:
+    ROL BX, 1           ; Rotate BX left, msb goes to CF and lsb
+    JNC SKIP_INCREMENT  ; Jump if Carry = 0 (bit was 0)
+    
+    INC AX              ; Increment counter (bit was 1)
+    
+    SKIP_INCREMENT:
+    DEC CX              ; Decrement bit counter
+    JNZ COUNT_LOOP      ; Continue if more bits to check
+    
+    ; AX now contains count of 1 bits
+    ; BX is unchanged (rotated 16 times = back to original)
+    
+    MOV AH, 4Ch
+    INT 21h
+MAIN ENDP
+END MAIN
+
+
+###2
+
+
+.MODEL SMALL
+.STACK 100h
+.DATA
+    msg1 DB 'Original value: $'
+    msg2 DB 0Dh, 0Ah, 'After multiply by 8: $'
+    
+.CODE
+MAIN PROC
+    MOV AX, @DATA
+    MOV DS, AX          ; Initialize Data Seg
+    
+    ; Multiply AX by 8 using left shift
+    MOV AX, 5           ; AX = 5
+    
+    ; Method 1: Three individual shifts (2^3 = 8)
+    SHL AX, 1           ; AX = 10 (5 * 2)
+    SHL AX, 1           ; AX = 20 (5 * 4)
+    SHL AX, 1           ; AX = 40 (5 * 8)
+    
+    ; Result: AX = 40
+    
+    ; Display result (convert to decimal)
+    MOV BX, 10          ; Divisor
+    MOV CX, 0           ; Digit counter
+    MOV DX, AX          ; Move result to DX
+    
+    PUSH_DIGITS:
+    MOV AX, DX
+    MOV DX, 0
+    DIV BX
+    PUSH DX
+    INC CX
+    MOV DX, AX
+    CMP DX, 0
+    JNE PUSH_DIGITS
+    
+    PRINT_DIGITS:
+    POP DX
+    ADD DL, '0'
+    MOV AH, 02h
+    INT 21h
+    DEC CX
+    JNZ PRINT_DIGITS
+    
+    MOV AH, 4Ch
+    INT 21h
+MAIN ENDP
+END MAIN
+
+
+###3
+
+
+.MODEL SMALL
+.STACK 100h
+.DATA
+    
+.CODE
+MAIN PROC
+    MOV AX, @DATA
+    MOV DS, AX          ; Initialize Data Seg
+    
+    ; Divide BX by 4 using right shift
+    MOV BX, 20          ; BX = 20
+    
+    ; Method 1: Two individual shifts (2^2 = 4)
+    SHR BX, 1           ; BX = 10 (20 / 2)
+    SHR BX, 1           ; BX = 5 (20 / 4)
+    
+    ; Result: BX = 5
+    
+    ; Display result
+    MOV AX, BX          ; Move result to AX
+    MOV BX, 10
+    MOV CX, 0
+    MOV DX, AX
+    
+    PUSH_DIGITS:
+    MOV AX, DX
+    MOV DX, 0
+    DIV BX
+    PUSH DX
+    INC CX
+    MOV DX, AX
+    CMP DX, 0
+    JNE PUSH_DIGITS
+    
+    PRINT_DIGITS:
+    POP DX
+    ADD DL, '0'
+    MOV AH, 02h
+    INT 21h
+    DEC CX
+    JNZ PRINT_DIGITS
+    
+    MOV AH, 4Ch
+    INT 21h
+MAIN ENDP
+END MAIN
+
